@@ -15,7 +15,7 @@ set BASE_BRANCH=dev
 
 :: ── Helpers ───────────────────────────────────────────────────────────────────
 :: FIXES_DIR is relative to this script; adjust if you placed acbu-fixes elsewhere
-set FIXES_DIR=%~dp0acbu-fixes
+set "FIXES_DIR=%~dp0acbu-fixes"
 
 :: ── Pre-flight ────────────────────────────────────────────────────────────────
 echo [INFO] Checking prerequisites...
@@ -43,6 +43,20 @@ git diff --cached --quiet
 if errorlevel 1 (
     echo [ERROR] Staged changes detected.
     echo         Commit or reset them before running this script.
+    pause & exit /b 1
+)
+
+:: Require the fix payload before mutating branches or pushing.
+if not exist "%FIXES_DIR%\acbu_escrow\src\lib.rs" (
+    echo [ERROR] Missing fix source: %FIXES_DIR%\acbu_escrow\src\lib.rs
+    pause & exit /b 1
+)
+if not exist "%FIXES_DIR%\acbu_minting\src\lib.rs" (
+    echo [ERROR] Missing fix source: %FIXES_DIR%\acbu_minting\src\lib.rs
+    pause & exit /b 1
+)
+if not exist "%FIXES_DIR%\shared\src\errors.rs" (
+    echo [ERROR] Missing fix source: %FIXES_DIR%\shared\src\errors.rs
     pause & exit /b 1
 )
 

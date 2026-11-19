@@ -25,6 +25,11 @@ command -v curl >/dev/null 2>&1 || warn "curl not found — skipping GitHub CLI 
 
 [ -f "Cargo.toml" ] || die "Run this script from the root of the acbu-smart-contract repo"
 
+FIXES_DIR="$(cd "$(dirname "$0")" && pwd)/acbu-fixes"
+[ -f "$FIXES_DIR/acbu_escrow/src/lib.rs" ] || die "Missing fix source: $FIXES_DIR/acbu_escrow/src/lib.rs"
+[ -f "$FIXES_DIR/acbu_minting/src/lib.rs" ] || die "Missing fix source: $FIXES_DIR/acbu_minting/src/lib.rs"
+[ -f "$FIXES_DIR/shared/src/errors.rs" ] || die "Missing fix source: $FIXES_DIR/shared/src/errors.rs"
+
 # Ensure working tree is clean before we start
 if ! git diff --quiet || ! git diff --cached --quiet; then
   die "Working tree has uncommitted changes. Stash or commit them first."
@@ -43,8 +48,6 @@ else
 fi
 
 # ── Copy fixed files ──────────────────────────────────────────────────────────
-FIXES_DIR="$(dirname "$0")/acbu-fixes"   # adjust path if needed
-
 copy_if_exists() {
   local src="$1" dst="$2"
   if [ -f "$src" ]; then
